@@ -6,11 +6,11 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, Check, Leaf, Lock } from "lucide-react";
 import Header from "@/components/layout/Header";
 import WorkspaceScene from "@/components/workspace/WorkspaceScene";
+import SuccessModal from "@/components/checkout/SuccessModal";
 import { CatalogThumb } from "@/components/workspace/scene-art";
 import { productById } from "@/data/products";
+import { RENTAL_PERIODS, monthsFromPeriod } from "@/lib/rental";
 import { useMonthlyTotal, useSelectedProducts, useWorkspaceStore } from "@/store/workspaceStore";
-
-const PERIODS = ["1 month", "3 months", "6 months", "12 months"];
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -21,6 +21,7 @@ export default function CheckoutPage() {
   const [period, setPeriod] = useState("1 month");
   const [notes, setNotes] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,15 +34,7 @@ export default function CheckoutPage() {
       return;
     }
     setError(null);
-    try {
-      sessionStorage.setItem(
-        "monis-rental",
-        JSON.stringify({ startDate, period, notes, total, count: products.length })
-      );
-    } catch {
-      /* ignore */
-    }
-    router.push("/success");
+    setShowSuccess(true);
   };
 
   return (
@@ -124,19 +117,19 @@ export default function CheckoutPage() {
               <fieldset>
                 <legend className="mb-1.5 text-[13px] font-semibold text-[#252525]">Rental period</legend>
                 <div className="grid grid-cols-2 gap-2">
-                  {PERIODS.map((p) => (
+                  {RENTAL_PERIODS.map((p) => (
                     <button
-                      key={p}
+                      key={p.label}
                       type="button"
-                      aria-pressed={period === p}
-                      onClick={() => setPeriod(p)}
+                      aria-pressed={period === p.label}
+                      onClick={() => setPeriod(p.label)}
                       className={`min-h-[44px] rounded-xl border px-3 text-[12px] font-semibold transition focus-visible:outline-2 focus-visible:outline-[#5F705B] ${
-                        period === p
+                        period === p.label
                           ? "border-[#5F705B] bg-[#EDF0EA] text-[#252525]"
                           : "border-[#DDDAD2] text-[#6F6F68] hover:border-[#A8A69E]"
                       }`}
                     >
-                      {p}
+                      {p.label}
                     </button>
                   ))}
                 </div>
@@ -169,6 +162,14 @@ export default function CheckoutPage() {
                   €{total} <span className="text-sm font-normal text-[#6F6F68]">/ month</span>
                 </span>
               </div>
+              <div className="flex items-baseline justify-between rounded-xl bg-[#EDF0EA] px-4 py-3">
+                <span className="text-[13px] font-semibold text-[#252525]">
+                  Total for {period}
+                </span>
+                <span className="text-2xl font-bold text-[#3E5C3F]">
+                  €{total * monthsFromPeriod(period)}
+                </span>
+              </div>
 
               {error && (
                 <p role="alert" className="rounded-xl bg-red-50 p-3 text-[12px] font-medium text-red-700">
@@ -190,6 +191,15 @@ export default function CheckoutPage() {
           </aside>
         </div>
       </main>
+      {showSuccess && (
+        <SuccessModal
+          total={total}
+          startDate={startDate}
+          period={period}
+          onBackToWorkspace={() => router.push("/workspace")}
+          onViewRental={() => setShowSuccess(false)}
+        />
+      )}
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Leaf, MapPin } from "lucide-react";
 
-export default function Header({ step }: { step: 1 | 2 | 3 }) {
+export default function Header({ step }: { step: 1 | 2 }) {
   return (
     <header className="border-b border-[#DDDAD2] bg-[#F5F3EE]">
       <div className="mx-auto flex h-16 max-w-[1280px] items-center justify-between gap-4 px-5 md:px-8">
@@ -21,11 +21,6 @@ export default function Header({ step }: { step: 1 | 2 | 3 }) {
           <span className={`flex items-center gap-1.5 ${step >= 2 ? "text-[#252525]" : "text-[#A8A69E]"}`}>
             <span className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold ${step >= 2 ? "bg-[#5F705B] text-white" : "border border-[#DDDAD2]"}`}>2</span>
             Review and Request
-          </span>
-          <span className="h-px w-10 bg-[#DDDAD2]" />
-          <span className={`flex items-center gap-1.5 ${step >= 3 ? "text-[#252525]" : "text-[#A8A69E]"}`}>
-            <span className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold ${step >= 3 ? "bg-[#5F705B] text-white" : "border border-[#DDDAD2]"}`}>3</span>
-            Success
           </span>
         </nav>
 
